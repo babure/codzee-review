@@ -49,9 +49,13 @@ See `src/` for server, DB, middleware, and routes; `views/` for templates; `publ
 ## Codzee evaluation workflow
 
 1. Install Codzee on this public repository from [codzee.io](https://www.codzee.io).
-2. Open the intentional evaluation PRs (auth, RBAC, XSS/CSRF scenarios).
-3. Record findings in [`FEEDBACK.md`](./FEEDBACK.md).
+2. Let Codzee review the open evaluation PRs:
+   - [#2 Auth / remember-me](https://github.com/babure/codzee-review/pull/2)
+   - [#3 Notes search + RBAC](https://github.com/babure/codzee-review/pull/3)
+   - [#4 Profile / preview / redirects](https://github.com/babure/codzee-review/pull/4)
+3. Record findings in [`FEEDBACK.md`](./FEEDBACK.md) (includes planted-issue checklist).
 4. Submit the Codzee Google Form with the repo URL and your feedback.
+5. Keep the repository and PRs public.
 
 ## Scripts
 
