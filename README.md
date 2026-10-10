@@ -40,7 +40,7 @@ Created automatically on first boot.
 | editor | Create notes; delete own notes                    |
 | admin  | Manage roles; delete any note                     |
 
-New registrations start as `viewer`. Promote users from **Admin → Manage users**.
+Registration can request a starting role. Promote or demote users from **Admin → Manage users**. Notes support title/body search.
 
 ## Project layout
 

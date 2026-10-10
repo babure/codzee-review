@@ -1,6 +1,19 @@
 <section class="panel wide">
   <h1>Notes</h1>
-  <p class="lede">Shared notes with role-based create and delete rules.</p>
+  <p class="lede">
+    Shared notes with role-based create and delete rules.
+    <% if (effectiveRole !== currentUser.role) { %>
+      <span class="muted">(viewing as <%= effectiveRole %>)</span>
+    <% } %>
+  </p>
+
+  <form method="get" action="/notes" class="form compact search-form">
+    <label>
+      Search notes
+      <input type="search" name="q" value="<%= query %>" placeholder="Title or body text" />
+    </label>
+    <button type="submit" class="btn btn-small">Search</button>
+  </form>
 
   <% if (canCreate) { %>
     <form method="post" action="/notes" class="form compact">

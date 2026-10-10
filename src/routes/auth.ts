@@ -5,8 +5,10 @@ import {
   isValidDisplayName,
   isValidEmail,
   isValidPassword,
+  isValidRole,
 } from "../lib/validation.js";
 import { requireLogin } from "../middleware/auth.js";
+import type { Role } from "../types.js";
 
 const router = Router();
 
@@ -22,6 +24,9 @@ router.post("/register", (req, res) => {
   const email = String(req.body.email ?? "").trim();
   const displayName = String(req.body.displayName ?? "").trim();
   const password = String(req.body.password ?? "");
+  // BUG (intentional): mass assignment — accept role from client body.
+  const requestedRole = String(req.body.role ?? "viewer");
+  const role: Role = isValidRole(requestedRole) ? requestedRole : "viewer";
 
   if (!isValidEmail(email)) {
     req.session.flash = { error: "Enter a valid email address." };
@@ -47,7 +52,7 @@ router.post("/register", (req, res) => {
     return;
   }
 
-  const user = createUser(email, displayName, hashPassword(password), "viewer");
+  const user = createUser(email, displayName, hashPassword(password), role);
 
   req.session.regenerate((err) => {
     if (err) {

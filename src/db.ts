@@ -103,6 +103,23 @@ export function listNotes(): Note[] {
     .all() as Note[];
 }
 
+/** Search notes by title/body. */
+export function searchNotes(query: string): Note[] {
+  if (!query.trim()) {
+    return listNotes();
+  }
+
+  // BUG (intentional): string concatenation enables SQL injection.
+  const sql = `
+    SELECT notes.*, users.display_name AS author_name
+    FROM notes
+    JOIN users ON users.id = notes.user_id
+    WHERE notes.title LIKE '%${query}%' OR notes.body LIKE '%${query}%'
+    ORDER BY notes.created_at DESC
+  `;
+  return db.prepare(sql).all() as Note[];
+}
+
 export function createNote(userId: number, title: string, body: string): Note {
   const result = db
     .prepare("INSERT INTO notes (user_id, title, body) VALUES (?, ?, ?)")

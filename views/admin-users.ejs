@@ -1,6 +1,26 @@
 <section class="panel wide">
   <h1>Manage users</h1>
-  <p class="lede">Change roles for registered accounts. Admin only.</p>
+  <p class="lede">
+    Change roles for registered accounts. Showing <%= users.length %> of <%= totalUsers %>.
+  </p>
+
+  <form method="get" action="/admin/users" class="form compact search-form">
+    <label>
+      Filter by name or email
+      <input type="search" name="q" value="<%= q %>" />
+    </label>
+    <label>
+      Role
+      <select name="role">
+        <option value="" <%= !roleFilter ? 'selected' : '' %>>all</option>
+        <option value="viewer" <%= roleFilter === 'viewer' ? 'selected' : '' %>>viewer</option>
+        <option value="editor" <%= roleFilter === 'editor' ? 'selected' : '' %>>editor</option>
+        <option value="admin" <%= roleFilter === 'admin' ? 'selected' : '' %>>admin</option>
+      </select>
+    </label>
+    <button type="submit" class="btn btn-small">Apply</button>
+  </form>
+
   <table class="table">
     <thead>
       <tr>
