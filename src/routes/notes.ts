@@ -4,6 +4,7 @@ import {
   deleteNote,
   findNoteById,
   listNotes,
+  listNotesSorted,
   searchNotes,
 } from "../db.js";
 import { requireLogin } from "../middleware/auth.js";
@@ -14,12 +15,16 @@ const router = Router();
 router.get("/notes", requireLogin, (req, res) => {
   const user = req.session.user!;
   const q = String(req.query.q ?? "");
-  const notes = q ? searchNotes(q) : listNotes();
+  const sort = String(req.query.sort ?? "created_at");
+  const dir = String(req.query.dir ?? "desc");
+  const notes = q ? searchNotes(q) : listNotesSorted(sort, dir);
 
   res.render("notes", {
     title: "Notes",
     notes,
     query: q,
+    sort,
+    dir,
     canCreate: hasAtLeastRole(user.role, "editor"),
     currentUserId: user.id,
     isAdmin: user.role === "admin",

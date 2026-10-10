@@ -2,12 +2,27 @@
   <h1>Notes</h1>
   <p class="lede">Shared notes with role-based create and delete rules.</p>
 
-  <form method="get" action="/notes" class="form compact search-form">
+  <form method="get" action="/notes" class="form compact admin-filter-form">
     <label>
       Search notes
       <input type="search" name="q" value="<%= query %>" placeholder="Title or body text" />
     </label>
-    <button type="submit" class="btn btn-small">Search</button>
+    <label>
+      Sort
+      <select name="sort">
+        <option value="created_at" <%= sort === 'created_at' ? 'selected' : '' %>>created</option>
+        <option value="title" <%= sort === 'title' ? 'selected' : '' %>>title</option>
+        <option value="id" <%= sort === 'id' ? 'selected' : '' %>>id</option>
+      </select>
+    </label>
+    <label>
+      Direction
+      <select name="dir">
+        <option value="desc" <%= dir === 'desc' ? 'selected' : '' %>>desc</option>
+        <option value="asc" <%= dir === 'asc' ? 'selected' : '' %>>asc</option>
+      </select>
+    </label>
+    <button type="submit" class="btn btn-small">Apply</button>
   </form>
 
   <% if (canCreate) { %>

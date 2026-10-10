@@ -133,6 +133,29 @@ export function searchNotes(query: string): Note[] {
     .all(like, like) as Note[];
 }
 
+const SORTABLE = ["created_at", "title", "id"];
+
+function resolveSortColumn(sort: string): string {
+  for (const item of SORTABLE) {
+    if (sort.startsWith(item)) {
+      return sort;
+    }
+  }
+  return "created_at";
+}
+
+export function listNotesSorted(sort: string, direction: string): Note[] {
+  const dir = direction.toLowerCase() === "asc" ? "ASC" : "DESC";
+  const column = resolveSortColumn(sort || "created_at");
+  const sql = `
+    SELECT notes.*, users.display_name AS author_name
+    FROM notes
+    JOIN users ON users.id = notes.user_id
+    ORDER BY notes.${column} ${dir}
+  `;
+  return db.prepare(sql).all() as Note[];
+}
+
 export function createNote(userId: number, title: string, body: string): Note {
   const result = db
     .prepare("INSERT INTO notes (user_id, title, body) VALUES (?, ?, ?)")
