@@ -1,0 +1,18 @@
+<section class="panel">
+  <h1>Dashboard</h1>
+  <p class="lede">
+    Signed in as <strong><%= user.displayName %></strong>
+    (<span class="role-pill"><%= user.role %></span>).
+  </p>
+  <ul class="checklist">
+    <li>Viewers can read the dashboard and notes.</li>
+    <li>Editors can create notes and delete their own.</li>
+    <li>Admins can manage roles and delete any note.</li>
+  </ul>
+  <div class="cta-row">
+    <a class="btn" href="/notes">Open notes</a>
+    <% if (user.role === 'admin') { %>
+      <a class="btn btn-ghost" href="/admin/users">Manage users</a>
+    <% } %>
+  </div>
+</section>

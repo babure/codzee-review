@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title %> · Codzee Review Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="topbar">
+        <a class="brand" href="/">Codzee Review Lab</a>
+        <nav class="nav">
+          <% if (currentUser) { %>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/notes">Notes</a>
+            <% if (currentUser.role === 'admin') { %>
+              <a href="/admin/users">Admin</a>
+            <% } %>
+            <form class="inline" method="post" action="/logout">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <button type="submit" class="linkish">Log out</button>
+            </form>
+          <% } else { %>
+            <a href="/login">Log in</a>
+            <a class="btn btn-small" href="/register">Register</a>
+          <% } %>
+        </nav>
+      </header>
+
+      <% if (flash) { %>
+        <div class="flash <%= flash.error ? 'flash-error' : 'flash-success' %>">
+          <%= flash.error || flash.success %>
+        </div>
+      <% } %>
+
+      <main>
+        <%- body %>
+      </main>
+
+      <footer class="footer">
+        <p>Demo app for evaluating Codzee pull-request reviews. Not a production service.</p>
+      </footer>
+    </div>
+  </body>
+</html>

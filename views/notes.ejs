@@ -1,0 +1,44 @@
+<section class="panel wide">
+  <h1>Notes</h1>
+  <p class="lede">Shared notes with role-based create and delete rules.</p>
+
+  <% if (canCreate) { %>
+    <form method="post" action="/notes" class="form compact">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <label>
+        Title
+        <input type="text" name="title" required maxlength="120" />
+      </label>
+      <label>
+        Body
+        <textarea name="body" rows="4" required></textarea>
+      </label>
+      <button type="submit" class="btn">Add note</button>
+    </form>
+  <% } else { %>
+    <p class="muted">Your role is viewer — you can read notes but not create them.</p>
+  <% } %>
+
+  <div class="note-list">
+    <% if (notes.length === 0) { %>
+      <p class="muted">No notes yet.</p>
+    <% } %>
+    <% notes.forEach(function (note) { %>
+      <article class="note">
+        <header>
+          <h2><%= note.title %></h2>
+          <p class="muted">
+            by <%= note.author_name %> · <%= note.created_at %>
+          </p>
+        </header>
+        <p><%= note.body %></p>
+        <% if (isAdmin || (canCreate && note.user_id === currentUserId)) { %>
+          <form method="post" action="/notes/<%= note.id %>/delete">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <button type="submit" class="btn btn-danger btn-small">Delete</button>
+          </form>
+        <% } %>
+      </article>
+    <% }) %>
+  </div>
+</section>

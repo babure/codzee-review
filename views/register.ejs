@@ -1,0 +1,21 @@
+<section class="panel">
+  <h1>Create an account</h1>
+  <p class="lede">New users start with the <strong>viewer</strong> role.</p>
+  <form method="post" action="/register" class="form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <label>
+      Display name
+      <input type="text" name="displayName" required maxlength="80" autocomplete="name" />
+    </label>
+    <label>
+      Email
+      <input type="email" name="email" required autocomplete="email" />
+    </label>
+    <label>
+      Password
+      <input type="password" name="password" required minlength="8" autocomplete="new-password" />
+    </label>
+    <button type="submit" class="btn">Register</button>
+  </form>
+  <p class="muted">Already have an account? <a href="/login">Log in</a></p>
+</section>

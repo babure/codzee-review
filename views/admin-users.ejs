@@ -1,0 +1,34 @@
+<section class="panel wide">
+  <h1>Manage users</h1>
+  <p class="lede">Change roles for registered accounts. Admin only.</p>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Update</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% users.forEach(function (user) { %>
+        <tr>
+          <td><%= user.display_name %></td>
+          <td><%= user.email %></td>
+          <td><span class="role-pill"><%= user.role %></span></td>
+          <td>
+            <form method="post" action="/admin/users/<%= user.id %>/role" class="inline-form">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <select name="role">
+                <option value="viewer" <%= user.role === 'viewer' ? 'selected' : '' %>>viewer</option>
+                <option value="editor" <%= user.role === 'editor' ? 'selected' : '' %>>editor</option>
+                <option value="admin" <%= user.role === 'admin' ? 'selected' : '' %>>admin</option>
+              </select>
+              <button type="submit" class="btn btn-small">Save</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</section>

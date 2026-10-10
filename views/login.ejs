@@ -1,0 +1,17 @@
+<section class="panel">
+  <h1>Log in</h1>
+  <p class="lede">Use the seeded admin account from the README, or your own user.</p>
+  <form method="post" action="/login" class="form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <label>
+      Email
+      <input type="email" name="email" required autocomplete="email" />
+    </label>
+    <label>
+      Password
+      <input type="password" name="password" required autocomplete="current-password" />
+    </label>
+    <button type="submit" class="btn">Log in</button>
+  </form>
+  <p class="muted">Need an account? <a href="/register">Register</a></p>
+</section>
