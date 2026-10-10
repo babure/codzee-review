@@ -35,6 +35,12 @@ export function migrate(): void {
       body TEXT NOT NULL,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS remember_tokens (
+      token TEXT PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
   `);
 
   const admin = db
@@ -136,4 +142,21 @@ export function findNoteById(id: number): Note | undefined {
 
 export function deleteNote(id: number): void {
   db.prepare("DELETE FROM notes WHERE id = ?").run(id);
+}
+
+export function saveRememberToken(token: string, userId: number): void {
+  db.prepare(
+    "INSERT OR REPLACE INTO remember_tokens (token, user_id) VALUES (?, ?)",
+  ).run(token, userId);
+}
+
+export function findUserIdByRememberToken(token: string): number | undefined {
+  const row = db
+    .prepare("SELECT user_id FROM remember_tokens WHERE token = ?")
+    .get(token) as { user_id: number } | undefined;
+  return row?.user_id;
+}
+
+export function clearRememberTokensForUser(userId: number): void {
+  db.prepare("DELETE FROM remember_tokens WHERE user_id = ?").run(userId);
 }

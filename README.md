@@ -46,6 +46,12 @@ New registrations start as `viewer`. Promote users from **Admin → Manage users
 
 See `src/` for server, DB, middleware, and routes; `views/` for templates; `public/` for CSS.
 
+## Auth extras
+
+- Password strength hint on registration
+- In-memory login rate limiting (best-effort)
+- Optional “Remember me” cookie for 30 days
+
 ## Codzee evaluation workflow
 
 1. Install Codzee on this public repository from [codzee.io](https://www.codzee.io).
