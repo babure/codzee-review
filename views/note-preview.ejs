@@ -4,6 +4,17 @@
   <p class="muted">by <%= note.author_name %> · <%= note.created_at %></p>
   <div class="note-body"><%= note.body %></div>
 
+  <% if (canTransfer) { %>
+    <form method="post" action="/notes/<%= note.id %>/transfer" class="form compact" style="margin-top: 1.25rem;">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <label>
+        Transfer to user email
+        <input type="email" name="targetEmail" required />
+      </label>
+      <button type="submit" class="btn btn-small">Transfer ownership</button>
+    </form>
+  <% } %>
+
   <% if (canDelete) { %>
     <form method="post" action="/notes/<%= note.id %>/delete" style="margin-top: 1.25rem;">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
