@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { findUserById, listUsers, updateUserRole } from "../db.js";
+import { bodyString, paramId, queryString } from "../lib/request.js";
 import { isValidRole } from "../lib/validation.js";
 import { requireLogin } from "../middleware/auth.js";
 import { requireRole } from "../middleware/rbac.js";
@@ -25,8 +26,8 @@ router.get(
   requireLogin,
   requireRole("admin"),
   (req, res) => {
-    const roleFilter = String(req.query.role ?? "");
-    const q = String(req.query.q ?? "").trim();
+    const roleFilter = queryString(req, "role");
+    const q = queryString(req, "q").trim();
     const allUsers = listUsers();
     const users = filterUsers(allUsers, roleFilter, q);
 
@@ -45,8 +46,8 @@ router.post(
   requireLogin,
   requireRole("admin"),
   (req, res) => {
-    const userId = Number(req.params.id);
-    const role = String(req.body.role ?? "");
+    const userId = paramId(req, "id");
+    const role = bodyString(req, "role");
 
     if (!Number.isInteger(userId) || !isValidRole(role)) {
       req.session.flash = { error: "Invalid user or role." };

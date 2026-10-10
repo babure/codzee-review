@@ -6,6 +6,7 @@ import {
   listNotes,
   searchNotes,
 } from "../db.js";
+import { bodyString, paramId, queryString } from "../lib/request.js";
 import { requireLogin } from "../middleware/auth.js";
 import { hasAtLeastRole, requireRole } from "../middleware/rbac.js";
 
@@ -13,7 +14,7 @@ const router = Router();
 
 router.get("/notes", requireLogin, (req, res) => {
   const user = req.session.user!;
-  const q = String(req.query.q ?? "");
+  const q = queryString(req, "q");
   const notes = q ? searchNotes(q) : listNotes();
 
   res.render("notes", {
@@ -27,7 +28,7 @@ router.get("/notes", requireLogin, (req, res) => {
 });
 
 router.get("/notes/:id", requireLogin, (req, res) => {
-  const noteId = Number(req.params.id);
+  const noteId = paramId(req, "id");
   if (!Number.isInteger(noteId)) {
     req.session.flash = { error: "Invalid note." };
     res.redirect("/notes");
@@ -58,8 +59,8 @@ router.post(
   requireLogin,
   requireRole("admin", "editor"),
   (req, res) => {
-    const title = String(req.body.title ?? "").trim();
-    const body = String(req.body.body ?? "").trim();
+    const title = bodyString(req, "title").trim();
+    const body = bodyString(req, "body").trim();
 
     if (title.length < 1 || title.length > 120 || body.length < 1) {
       req.session.flash = {
@@ -76,7 +77,7 @@ router.post(
 );
 
 router.post("/notes/:id/delete", requireLogin, (req, res) => {
-  const noteId = Number(req.params.id);
+  const noteId = paramId(req, "id");
   const user = req.session.user!;
 
   if (!Number.isInteger(noteId)) {
