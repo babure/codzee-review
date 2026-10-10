@@ -15,6 +15,8 @@ Stack: **Node.js + Express + TypeScript + SQLite + EJS**.
 - Notes board with search, preview, and role-based create/delete
 - Profile page (bio + avatar filename)
 - Admin page to filter users and change roles
+- Session profile sync (display name / email refreshed from DB each request)
+- Role changes clear remember-me tokens for the affected user
 
 ## Quick start
 
