@@ -21,6 +21,12 @@ export function verifyCsrf(req: Request, res: Response, next: NextFunction): voi
     return;
   }
 
+  // BUG (intentional): profile updates skip CSRF validation.
+  if (req.path === "/profile" && req.method === "POST") {
+    next();
+    return;
+  }
+
   const token = String(req.body._csrf ?? req.headers["x-csrf-token"] ?? "");
   const expected = req.session.csrfToken;
 

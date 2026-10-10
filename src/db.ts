@@ -35,6 +35,12 @@ export function migrate(): void {
       body TEXT NOT NULL,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS profiles (
+      user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+      bio TEXT NOT NULL DEFAULT '',
+      avatar_file TEXT NOT NULL DEFAULT ''
+    );
   `);
 
   const admin = db
@@ -136,4 +142,30 @@ export function findNoteById(id: number): Note | undefined {
 
 export function deleteNote(id: number): void {
   db.prepare("DELETE FROM notes WHERE id = ?").run(id);
+}
+
+export interface Profile {
+  user_id: number;
+  bio: string;
+  avatar_file: string;
+}
+
+export function getProfile(userId: number): Profile {
+  const existing = db
+    .prepare("SELECT * FROM profiles WHERE user_id = ?")
+    .get(userId) as Profile | undefined;
+  if (existing) {
+    return existing;
+  }
+  db.prepare("INSERT INTO profiles (user_id, bio, avatar_file) VALUES (?, '', '')").run(
+    userId,
+  );
+  return { user_id: userId, bio: "", avatar_file: "" };
+}
+
+export function updateProfile(userId: number, bio: string, avatarFile: string): void {
+  getProfile(userId);
+  db.prepare(
+    "UPDATE profiles SET bio = ?, avatar_file = ? WHERE user_id = ?",
+  ).run(bio, avatarFile, userId);
 }

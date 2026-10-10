@@ -1,0 +1,30 @@
+<section class="panel">
+  <h1>Your profile</h1>
+  <p class="lede">
+    Signed in as <strong><%= user.displayName %></strong>
+    (<span class="role-pill"><%= user.role %></span>).
+  </p>
+
+  <div class="profile-bio">
+    <h2>Bio preview</h2>
+    <!-- BUG (intentional): unescaped HTML allows stored XSS -->
+    <div class="bio-content"><%- profile.bio || '<em class="muted">No bio yet.</em>' %></div>
+  </div>
+
+  <% if (profile.avatar_file) { %>
+    <p class="muted">Avatar file: <a href="/uploads/<%= profile.avatar_file %>"><%= profile.avatar_file %></a></p>
+  <% } %>
+
+  <form method="post" action="/profile" class="form">
+    <!-- CSRF field omitted intentionally on this form for evaluation -->
+    <label>
+      Bio (HTML allowed)
+      <textarea name="bio" rows="5"><%= profile.bio %></textarea>
+    </label>
+    <label>
+      Avatar filename
+      <input type="text" name="avatarFile" value="<%= profile.avatar_file %>" placeholder="me.png" />
+    </label>
+    <button type="submit" class="btn">Save profile</button>
+  </form>
+</section>

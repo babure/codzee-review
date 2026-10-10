@@ -21,6 +21,32 @@ router.get("/notes", requireLogin, (req, res) => {
   });
 });
 
+router.get("/notes/:id", requireLogin, (req, res) => {
+  const noteId = Number(req.params.id);
+  if (!Number.isInteger(noteId)) {
+    req.session.flash = { error: "Invalid note." };
+    res.redirect("/notes");
+    return;
+  }
+
+  const note = findNoteById(noteId);
+  if (!note) {
+    req.session.flash = { error: "Note not found." };
+    res.redirect("/notes");
+    return;
+  }
+
+  // Preview is available to any logged-in user (including viewers).
+  res.render("note-preview", {
+    title: note.title,
+    note,
+    canDelete:
+      req.session.user!.role === "admin" ||
+      (hasAtLeastRole(req.session.user!.role, "editor") &&
+        note.user_id === req.session.user!.id),
+  });
+});
+
 router.post(
   "/notes",
   requireLogin,
@@ -45,7 +71,6 @@ router.post(
 
 router.post("/notes/:id/delete", requireLogin, (req, res) => {
   const noteId = Number(req.params.id);
-  const user = req.session.user!;
 
   if (!Number.isInteger(noteId)) {
     req.session.flash = { error: "Invalid note." };
@@ -60,16 +85,8 @@ router.post("/notes/:id/delete", requireLogin, (req, res) => {
     return;
   }
 
-  const canDelete =
-    user.role === "admin" ||
-    (hasAtLeastRole(user.role, "editor") && note.user_id === user.id);
-
-  if (!canDelete) {
-    req.session.flash = { error: "You cannot delete that note." };
-    res.redirect("/notes");
-    return;
-  }
-
+  // BUG (intentional): authz inconsistency vs GET preview —
+  // any authenticated user can delete, including viewers.
   deleteNote(noteId);
   req.session.flash = { success: "Note deleted." };
   res.redirect("/notes");

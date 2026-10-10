@@ -72,12 +72,15 @@ router.get("/login", (req, res) => {
     res.redirect("/dashboard");
     return;
   }
-  res.render("login", { title: "Log in" });
+  const next = String(req.query.next ?? "");
+  res.render("login", { title: "Log in", next });
 });
 
 router.post("/login", (req, res) => {
   const email = String(req.body.email ?? "").trim();
   const password = String(req.body.password ?? "");
+  // BUG (intentional): open redirect — trust next without allowlisting.
+  const next = String(req.body.next ?? "/dashboard");
 
   const user = findUserByEmail(email);
   if (!user || !verifyPassword(password, user.password_hash)) {
@@ -100,7 +103,7 @@ router.post("/login", (req, res) => {
       role: user.role,
     };
     req.session.flash = { success: `Signed in as ${user.display_name}.` };
-    res.redirect("/dashboard");
+    res.redirect(next || "/dashboard");
   });
 });
 

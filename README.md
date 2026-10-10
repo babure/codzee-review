@@ -12,6 +12,8 @@ Stack: **Node.js + Express + TypeScript + SQLite + EJS**.
 - Roles: `admin`, `editor`, `viewer`
 - Notes board with role-based create/delete
 - Admin page to change user roles
+- Profile page with bio + avatar filename
+- Per-note preview pages
 
 ## Quick start
 

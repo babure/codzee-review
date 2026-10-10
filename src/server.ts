@@ -14,6 +14,7 @@ import adminRoutes from "./routes/admin.js";
 import authRoutes from "./routes/auth.js";
 import dashboardRoutes from "./routes/dashboard.js";
 import notesRoutes from "./routes/notes.js";
+import profileRoutes from "./routes/profile.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SQLiteStore = connectSqlite3(session);
@@ -74,6 +75,7 @@ app.use(authRoutes);
 app.use(dashboardRoutes);
 app.use(adminRoutes);
 app.use(notesRoutes);
+app.use(profileRoutes);
 
 app.use((_req, res) => {
   res.status(404).render("home", {
