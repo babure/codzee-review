@@ -2,20 +2,15 @@
 
 Use this document while evaluating Codzee on [babure/codzee-review](https://github.com/babure/codzee-review), then paste/adapt answers into the Codzee Google Form.
 
-**Deadline:** Monday, 12 October 2026
+**Deadline:** Monday, 12 October 2026  
+**Reviewed:** 2026-10-10 (Codzee bot comments on PRs #2–#4)
 
-## Manual steps you must complete
+## Manual steps remaining
 
-1. Sign in at [https://www.codzee.io](https://www.codzee.io) with GitHub.
-2. Install Codzee on **`babure/codzee-review`** (public repo).
-3. Wait for Codzee to review these open PRs:
-   - [#1 Baseline MVP](https://github.com/babure/codzee-review/pull/1) (clean baseline — expect few/no security findings)
-   - [#2 Auth / remember-me](https://github.com/babure/codzee-review/pull/2)
-   - [#3 Notes search + RBAC](https://github.com/babure/codzee-review/pull/3)
-   - [#4 Profile / preview / redirects](https://github.com/babure/codzee-review/pull/4)
-4. Explore dashboard + “Ask Codzee” if available on your plan.
-5. Fill the Google Form with repo URL + feedback from this file.
-6. Keep the repository and PRs **public**.
+1. Explore Codzee dashboard + “Ask Codzee” if available.
+2. Optionally dismiss one comment and see if memory learns.
+3. Fill the Google Form with repo URL + feedback from this file.
+4. Keep the repository and PRs **public**.
 
 ## Repo / contact fields (for the form)
 
@@ -26,93 +21,114 @@ Use this document while evaluating Codzee on [babure/codzee-review](https://gith
 | Phone | _(your phone)_ |
 | GitHub repository URL | https://github.com/babure/codzee-review |
 
-## Planted issues checklist (ground truth)
+## Validity scorecard (planted issues)
 
-Fill **Caught?** after Codzee comments. Mark `Y` / `N` / `Partial`.
+**Verdict: nearly all planted defects were validly caught. No false positives on the security findings. A few comments are duplicates or secondary angles of the same root cause.**
 
-### PR #2 — Auth / sessions (`cursor/pr1-auth-session-bugs-c577`)
+### PR #2 — Auth / sessions ([link](https://github.com/babure/codzee-review/pull/2)) — 7 findings
 
-| # | Planted issue | Location | Caught? | Notes |
-|---|---------------|----------|---------|-------|
-| A1 | User enumeration via distinct login errors | `src/routes/auth.ts` | | |
-| A2 | Session fixation (no `regenerate` on login) | `src/routes/auth.ts` | | |
-| A3 | Weak/predictable remember-me token | `src/lib/rememberMe.ts` | | |
-| A4 | Remember-me cookie not HttpOnly | `src/routes/auth.ts` | | |
-| A5 | Logs password + remember token | `src/routes/auth.ts` | | |
+| # | Planted issue | Caught? | Codzee severity | Valid? |
+|---|---------------|---------|-----------------|--------|
+| A1 | User enumeration via distinct login errors | Y | Minor | **Valid** — correct finding; severity feels light for auth |
+| A2 | Session fixation (no `regenerate`) | Y | Major | **Valid** — also noted remember-me auto-login has same flaw |
+| A3 | Weak/predictable remember-me token | Y | Critical | **Valid** — 4 random bytes + userId prefix |
+| A4 | Remember-me cookie not HttpOnly | Y | Major | **Valid** — also flagged missing `secure` in prod |
+| A5 | Logs password + remember token | Y | Critical + Major | **Valid** — split into two comments (password log + token log) |
 
-### PR #3 — Notes / RBAC (`cursor/pr2-notes-rbac-bugs-c577`)
+**Extra (valid, not separately planted):** GET `/login` remember-me auto-login is unthrottled while POST is rate-limited — good adjacent catch.
 
-| # | Planted issue | Location | Caught? | Notes |
-|---|---------------|----------|---------|-------|
-| B1 | SQL injection in note search | `src/db.ts` `searchNotes` | | |
-| B2 | IDOR: delete note without ownership check | `src/routes/notes.ts` | | |
-| B3 | Client-claimed `asRole` privilege escalation | `src/routes/notes.ts` | | |
-| B4 | Mass assignment: register accepts `role=admin` | `src/routes/auth.ts` | | |
-| B5 | Admin role POST trusts `asRole=admin` body | `src/routes/admin.ts` | | |
+### PR #3 — Notes / RBAC ([link](https://github.com/babure/codzee-review/pull/3)) — 9 findings
 
-### PR #4 — Profile / XSS / CSRF (`cursor/pr3-profile-xss-csrf-c577`)
+| # | Planted issue | Caught? | Codzee severity | Valid? |
+|---|---------------|---------|-----------------|--------|
+| B1 | SQL injection in note search | Y | Critical (×2) | **Valid** — commented on both call site and `searchNotes`; slightly duplicated |
+| B2 | IDOR delete without ownership check | Y | Critical | **Valid** |
+| B3 | Client-claimed `asRole` privilege escalation | Y | Critical | **Valid** |
+| B4 | Mass assignment `role=admin` on register | Y | Critical (×2) | **Valid** — handler + form option; duplicated but accurate |
+| B5 | Admin POST trusts `asRole=admin` | Y | Critical | **Valid** |
 
-| # | Planted issue | Location | Caught? | Notes |
-|---|---------------|----------|---------|-------|
-| C1 | Stored XSS via unescaped bio (`<%-`) | `views/profile.ejs` | | |
-| C2 | Stored XSS via unescaped note title/body | `views/note-preview.ejs` | | |
-| C3 | CSRF skipped on `POST /profile` | `src/middleware/csrf.ts` | | |
-| C4 | Authz inconsistency: UI hides delete, POST allows any user | `src/routes/notes.ts` | | |
-| C5 | Path traversal in `/uploads/*` | `src/routes/profile.ts` | | |
-| C6 | Open redirect via login `next` | `src/routes/auth.ts` | | |
+**Extras (valid, not planted):**
+- Admin filter CSS grid wraps the Apply button — real UI bug, Minor
+- `listUsers()` called twice per admin page load — real perf nit, Minor
 
-## Capability matrix (from Codzee product claims)
+### PR #4 — Profile / XSS / CSRF ([link](https://github.com/babure/codzee-review/pull/4)) — 9 findings
 
-| Capability | How tested | Result | Observations |
-|------------|------------|--------|--------------|
-| Real bugs + suggested fix | IDOR, authz bugs | | |
-| Security risks | SQLi, XSS, session, CSRF | | |
-| Signal vs noise | Clean baseline PR #1 | | |
-| Confidence / incomplete review | Multi-file PRs | | |
-| Reviewer routing | N/A unless 2nd collaborator | | |
-| Team dashboard | After ≥1 reviewed PR | | |
-| Ask Codzee | Ask about auth risks in repo | | |
-| Learning from dismiss | Dismiss a false positive; open similar later | | |
+| # | Planted issue | Caught? | Codzee severity | Valid? |
+|---|---------------|---------|-----------------|--------|
+| C1 | Stored XSS bio (`<%-`) | Y | Major (+ Minor duplicate) | **Valid** |
+| C2 | Stored XSS note title/body | Y | Critical (×2) | **Valid** — separate title vs body comments |
+| C3 | CSRF skipped on `POST /profile` | Y | Major | **Valid** — noted SameSite=Lax partial mitigation |
+| C4 | Authz inconsistency on note delete | Y | Critical | **Valid** — framed as “any user can delete” |
+| C5 | Path traversal uploads | Y | Critical (×2) | **Valid** — write path + read path both flagged |
+| C6 | Open redirect via login `next` | Y | Major | **Valid** — suggested allowlist regex |
 
-## Feedback prompts (draft answers here)
+### Missed planted issues?
+
+**None of the intentionally planted security defects were missed.**
+
+### Caveat that weakens the experiment
+
+Several source files contained comments like `// BUG (intentional): ...`. Codzee’s PR #4 summary explicitly said issues were “noted in comments,” so the bot almost certainly used those labels as signals. For a cleaner second pass, strip intentional-bug comments and re-run on a fresh PR.
+
+## Capability matrix
+
+| Capability | Result | Observations |
+|------------|--------|--------------|
+| Real bugs + suggested fix | Strong | IDOR, mass assignment, SQLi, XSS all got concrete fixes |
+| Security risks | Strong | Session fixation, CSRF skip, path traversal, open redirect |
+| Signal vs noise | Good | Baseline PR #1 merged clean; minors on #3 were real CSS/perf nits |
+| Confidence / incomplete review | Mixed | Did not claim incomplete; covered all changed files |
+| Reviewer routing | Partial | Routed to `@cursoragent` (commit author) — plausible but less useful on a solo repo |
+| Team dashboard / Ask Codzee | TBD | Explore in product UI |
+| Learning from dismiss | TBD | Optional follow-up test |
+
+## Feedback prompts (draft for Google Form)
 
 ### What did you like about the review experience?
 
-_
+Inline comments were specific (file + line + why it breaks), severity-tagged, and often included a patch suggestion. The summary comment with Critical/Major/Minor counts made triage easy.
 
 ### What worked particularly well?
 
-_
+Security/authz findings were accurate across three very different PR shapes (auth, RBAC, XSS/CSRF). Adjacent catches (unthrottled remember-me GET, write vs read path traversal) showed reasoning beyond a single lint rule.
 
 ### What could be improved?
 
-_
+1. Deduplicate related findings (SQLi call-site + helper; register handler + form option; bio XSS twice).
+2. Severity calibration: user enumeration as Minor understates auth risk relative to “Critical” password logging (both matter; ranking felt inconsistent).
+3. Reviewer routing to the PR author (`@cursoragent`) is not useful for solo evaluation repos.
+4. The “What changed” blurb on PR #4 mentioned intentional bug comments — either hide that from the public summary or treat labeled bugs as lower-confidence so teams can’t game the bot with comments.
 
 ### Bugs, inconsistencies, or confusing behaviour?
 
-_
+- Same root cause sometimes posted as 2–3 comments with different severities (e.g. bio XSS Major on template + Minor on route).
+- Grammar glitch in routing explanation: “is has been active”.
+- Status “Changes requested” on draft PRs with no required reviewers is a bit strong, though the summary is still useful.
 
 ### Issues or scenarios Codzee missed?
 
-_(compare against planted checklist above)_
+No planted security issues were missed. It did not deeply discuss timing side-channels beyond mentioning bcrypt skip on unknown email (partially covered under enumeration). It also did not propose tests, only code fixes.
 
 ### Were the reviews accurate and useful?
 
-_
+Yes — every security comment we checked was a true positive against the planted defects or a real secondary issue (CSS grid, double `listUsers`). Suggested fixes were generally correct.
 
 ### Features or improvements you would suggest?
 
-_
+- Group related findings into one thread with “also see” links.
+- Toggle: “ignore `BUG`/`TODO`/`intentional` comments as review hints” for adversarial testing.
+- Exploit sketch / PoC curl for Critical authz/SQLi would help junior reviewers verify faster.
+- Dashboard view comparing “findings by category across open PRs” for interview-style evals.
 
 ### How would you improve the overall developer experience?
 
-_
+Keep the low-noise default, but add a “security deep dive” mode that explicitly checks authz consistency between GET UI and POST handlers (Codzee caught this on #4, and that pattern is gold). Make draft-PR reviews feel advisory (“Issues found”) rather than “Changes requested” unless branch protection requires approval.
 
-## Additional observations for Codzee
+## Additional observations
 
 - App stack: Node.js + Express + TypeScript + SQLite + EJS
-- Baseline on `main` is intentionally **secure**; evaluation defects live only in open PRs #2–#4
-- Goal was to probe security + authorization review quality with realistic feature diffs
+- Baseline on `main` is intentionally secure; defects live in open PRs #2–#4
+- Codzee review latency was roughly under a minute per PR once installed
 
 ## Local run (optional)
 
