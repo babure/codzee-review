@@ -2,6 +2,14 @@
   <h1>Notes</h1>
   <p class="lede">Shared notes with role-based create and delete rules.</p>
 
+  <form method="get" action="/notes" class="form compact search-form">
+    <label>
+      Search notes
+      <input type="search" name="q" value="<%= query %>" placeholder="Title or body text" />
+    </label>
+    <button type="submit" class="btn btn-small">Search</button>
+  </form>
+
   <% if (canCreate) { %>
     <form method="post" action="/notes" class="form compact">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
@@ -26,7 +34,7 @@
     <% notes.forEach(function (note) { %>
       <article class="note">
         <header>
-          <h2><%= note.title %></h2>
+          <h2><a href="/notes/<%= note.id %>"><%= note.title %></a></h2>
           <p class="muted">
             by <%= note.author_name %> · <%= note.created_at %>
           </p>

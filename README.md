@@ -1,6 +1,6 @@
 # Codzee Review Lab
 
-Simple **registration / login / RBAC** web app used to evaluate [Codzee](https://www.codzee.io) pull-request reviews for a technical interview exercise.
+Simple **registration / login / RBAC** web app used to evaluate [Codzee](https://www.codzee.io) pull-request reviews.
 
 Stack: **Node.js + Express + TypeScript + SQLite + EJS**.
 
@@ -9,9 +9,12 @@ Stack: **Node.js + Express + TypeScript + SQLite + EJS**.
 - Email/password registration and login
 - Session cookies (HttpOnly) with SQLite session store
 - CSRF protection on mutating requests
+- Password strength hints + login rate limiting
+- Optional remember-me (hashed token, HttpOnly cookie)
 - Roles: `admin`, `editor`, `viewer`
-- Notes board with role-based create/delete
-- Admin page to change user roles
+- Notes board with search, preview, and role-based create/delete
+- Profile page (bio + avatar filename)
+- Admin page to filter users and change roles
 
 ## Quick start
 
@@ -34,36 +37,25 @@ Created automatically on first boot.
 
 ## RBAC
 
-| Role   | Capabilities                                      |
-|--------|---------------------------------------------------|
-| viewer | Read dashboard and notes                          |
-| editor | Create notes; delete own notes                    |
-| admin  | Manage roles; delete any note                     |
+| Role   | Capabilities                   |
+|--------|--------------------------------|
+| viewer | Read dashboard and notes       |
+| editor | Create notes; delete own notes |
+| admin  | Manage roles; delete any note  |
 
-New registrations start as `viewer`. Promote users from **Admin → Manage users**.
+New registrations always start as `viewer`. Promote users from **Admin → Manage users**.
 
 ## Project layout
 
 See `src/` for server, DB, middleware, and routes; `views/` for templates; `public/` for CSS.
 
-## Codzee evaluation workflow
-
-1. Install Codzee on this public repository from [codzee.io](https://www.codzee.io).
-2. Let Codzee review the open evaluation PRs:
-   - [#2 Auth / remember-me](https://github.com/babure/codzee-review/pull/2)
-   - [#3 Notes search + RBAC](https://github.com/babure/codzee-review/pull/3)
-   - [#4 Profile / preview / redirects](https://github.com/babure/codzee-review/pull/4)
-3. Record findings in [`FEEDBACK.md`](./FEEDBACK.md) (includes planted-issue checklist).
-4. Submit the Codzee Google Form with the repo URL and your feedback.
-5. Keep the repository and PRs public.
-
 ## Scripts
 
-| Command           | Description                |
-|-------------------|----------------------------|
-| `npm run dev`     | Dev server with reload     |
-| `npm start`       | Start server               |
-| `npm run typecheck` | TypeScript check         |
+| Command             | Description            |
+|---------------------|------------------------|
+| `npm run dev`       | Dev server with reload |
+| `npm start`         | Start server           |
+| `npm run typecheck` | TypeScript check       |
 
 ## Disclaimer
 

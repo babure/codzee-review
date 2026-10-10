@@ -1,7 +1,7 @@
 <section class="panel">
   <h1>Create an account</h1>
   <p class="lede">New users start with the <strong>viewer</strong> role.</p>
-  <form method="post" action="/register" class="form">
+  <form method="post" action="/register" class="form" id="register-form">
     <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
     <label>
       Display name
@@ -13,9 +13,36 @@
     </label>
     <label>
       Password
-      <input type="password" name="password" required minlength="8" autocomplete="new-password" />
+      <input
+        type="password"
+        name="password"
+        id="password"
+        required
+        minlength="8"
+        autocomplete="new-password"
+      />
     </label>
+    <p class="muted" id="password-hint">Use 8+ characters with mixed case, a number, and a symbol.</p>
     <button type="submit" class="btn">Register</button>
   </form>
   <p class="muted">Already have an account? <a href="/login">Log in</a></p>
 </section>
+<script>
+  (function () {
+    var input = document.getElementById("password");
+    var hint = document.getElementById("password-hint");
+    if (!input || !hint) return;
+    input.addEventListener("input", function () {
+      var value = input.value || "";
+      var score = 0;
+      if (value.length >= 8) score += 1;
+      if (value.length >= 12) score += 1;
+      if (/[A-Z]/.test(value) && /[a-z]/.test(value)) score += 1;
+      if (/\d/.test(value)) score += 1;
+      if (/[^A-Za-z0-9]/.test(value)) score += 1;
+      if (score <= 2) hint.textContent = "Strength: weak — keep going.";
+      else if (score <= 4) hint.textContent = "Strength: ok — almost there.";
+      else hint.textContent = "Strength: strong.";
+    });
+  })();
+</script>

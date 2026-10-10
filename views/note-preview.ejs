@@ -1,0 +1,15 @@
+<section class="panel">
+  <p class="muted"><a href="/notes">← Back to notes</a></p>
+  <h1><%= note.title %></h1>
+  <p class="muted">by <%= note.author_name %> · <%= note.created_at %></p>
+  <div class="note-body"><%= note.body %></div>
+
+  <% if (canDelete) { %>
+    <form method="post" action="/notes/<%= note.id %>/delete" style="margin-top: 1.25rem;">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <button type="submit" class="btn btn-danger btn-small">Delete note</button>
+    </form>
+  <% } else { %>
+    <p class="muted">You can view this note but cannot delete it.</p>
+  <% } %>
+</section>

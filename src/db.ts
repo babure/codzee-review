@@ -35,6 +35,18 @@ export function migrate(): void {
       body TEXT NOT NULL,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS remember_tokens (
+      token_hash TEXT PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS profiles (
+      user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+      bio TEXT NOT NULL DEFAULT '',
+      avatar_file TEXT NOT NULL DEFAULT ''
+    );
   `);
 
   const admin = db
@@ -103,6 +115,24 @@ export function listNotes(): Note[] {
     .all() as Note[];
 }
 
+export function searchNotes(query: string): Note[] {
+  const trimmed = query.trim();
+  if (!trimmed) {
+    return listNotes();
+  }
+
+  const like = `%${trimmed}%`;
+  return db
+    .prepare(
+      `SELECT notes.*, users.display_name AS author_name
+       FROM notes
+       JOIN users ON users.id = notes.user_id
+       WHERE notes.title LIKE ? OR notes.body LIKE ?
+       ORDER BY notes.created_at DESC`,
+    )
+    .all(like, like) as Note[];
+}
+
 export function createNote(userId: number, title: string, body: string): Note {
   const result = db
     .prepare("INSERT INTO notes (user_id, title, body) VALUES (?, ?, ?)")
@@ -136,4 +166,53 @@ export function findNoteById(id: number): Note | undefined {
 
 export function deleteNote(id: number): void {
   db.prepare("DELETE FROM notes WHERE id = ?").run(id);
+}
+
+export function saveRememberTokenHash(tokenHash: string, userId: number): void {
+  db.prepare(
+    "INSERT OR REPLACE INTO remember_tokens (token_hash, user_id) VALUES (?, ?)",
+  ).run(tokenHash, userId);
+}
+
+export function findUserIdByRememberTokenHash(
+  tokenHash: string,
+): number | undefined {
+  const row = db
+    .prepare("SELECT user_id FROM remember_tokens WHERE token_hash = ?")
+    .get(tokenHash) as { user_id: number } | undefined;
+  return row?.user_id;
+}
+
+export function clearRememberTokensForUser(userId: number): void {
+  db.prepare("DELETE FROM remember_tokens WHERE user_id = ?").run(userId);
+}
+
+export interface Profile {
+  user_id: number;
+  bio: string;
+  avatar_file: string;
+}
+
+export function getProfile(userId: number): Profile {
+  const existing = db
+    .prepare("SELECT * FROM profiles WHERE user_id = ?")
+    .get(userId) as Profile | undefined;
+  if (existing) {
+    return existing;
+  }
+  db.prepare(
+    "INSERT INTO profiles (user_id, bio, avatar_file) VALUES (?, '', '')",
+  ).run(userId);
+  return { user_id: userId, bio: "", avatar_file: "" };
+}
+
+export function updateProfile(
+  userId: number,
+  bio: string,
+  avatarFile: string,
+): void {
+  getProfile(userId);
+  db.prepare(
+    "UPDATE profiles SET bio = ?, avatar_file = ? WHERE user_id = ?",
+  ).run(bio, avatarFile, userId);
 }

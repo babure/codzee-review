@@ -4,6 +4,7 @@ import {
   deleteNote,
   findNoteById,
   listNotes,
+  searchNotes,
 } from "../db.js";
 import { requireLogin } from "../middleware/auth.js";
 import { hasAtLeastRole, requireRole } from "../middleware/rbac.js";
@@ -12,12 +13,43 @@ const router = Router();
 
 router.get("/notes", requireLogin, (req, res) => {
   const user = req.session.user!;
+  const q = String(req.query.q ?? "");
+  const notes = q ? searchNotes(q) : listNotes();
+
   res.render("notes", {
     title: "Notes",
-    notes: listNotes(),
+    notes,
+    query: q,
     canCreate: hasAtLeastRole(user.role, "editor"),
     currentUserId: user.id,
     isAdmin: user.role === "admin",
+  });
+});
+
+router.get("/notes/:id", requireLogin, (req, res) => {
+  const noteId = Number(req.params.id);
+  if (!Number.isInteger(noteId)) {
+    req.session.flash = { error: "Invalid note." };
+    res.redirect("/notes");
+    return;
+  }
+
+  const note = findNoteById(noteId);
+  if (!note) {
+    req.session.flash = { error: "Note not found." };
+    res.redirect("/notes");
+    return;
+  }
+
+  const user = req.session.user!;
+  const canDelete =
+    user.role === "admin" ||
+    (hasAtLeastRole(user.role, "editor") && note.user_id === user.id);
+
+  res.render("note-preview", {
+    title: note.title,
+    note,
+    canDelete,
   });
 });
 

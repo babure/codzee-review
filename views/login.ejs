@@ -3,6 +3,7 @@
   <p class="lede">Use the seeded admin account from the README, or your own user.</p>
   <form method="post" action="/login" class="form">
     <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <input type="hidden" name="next" value="<%= typeof next !== 'undefined' ? next : '/dashboard' %>" />
     <label>
       Email
       <input type="email" name="email" required autocomplete="email" />
@@ -10,6 +11,10 @@
     <label>
       Password
       <input type="password" name="password" required autocomplete="current-password" />
+    </label>
+    <label class="checkbox">
+      <input type="checkbox" name="rememberMe" />
+      Remember me for 30 days
     </label>
     <button type="submit" class="btn">Log in</button>
   </form>

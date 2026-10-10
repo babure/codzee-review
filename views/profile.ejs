@@ -1,0 +1,35 @@
+<section class="panel">
+  <h1>Your profile</h1>
+  <p class="lede">
+    Signed in as <strong><%= user.displayName %></strong>
+    (<span class="role-pill"><%= user.role %></span>).
+  </p>
+
+  <div class="profile-bio">
+    <h2>Bio preview</h2>
+    <div class="bio-content">
+      <% if (profile.bio) { %>
+        <%= profile.bio %>
+      <% } else { %>
+        <em class="muted">No bio yet.</em>
+      <% } %>
+    </div>
+  </div>
+
+  <% if (profile.avatar_file) { %>
+    <p class="muted">Avatar file: <a href="/uploads/<%= profile.avatar_file %>"><%= profile.avatar_file %></a></p>
+  <% } %>
+
+  <form method="post" action="/profile" class="form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <label>
+      Bio
+      <textarea name="bio" rows="5" maxlength="500"><%= profile.bio %></textarea>
+    </label>
+    <label>
+      Avatar filename
+      <input type="text" name="avatarFile" value="<%= profile.avatar_file %>" placeholder="me.png" pattern="[A-Za-z0-9._-]+" />
+    </label>
+    <button type="submit" class="btn">Save profile</button>
+  </form>
+</section>
