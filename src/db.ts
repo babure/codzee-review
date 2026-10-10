@@ -168,6 +168,22 @@ export function deleteNote(id: number): void {
   db.prepare("DELETE FROM notes WHERE id = ?").run(id);
 }
 
+export function transferNote(noteId: number, newOwnerId: number): void {
+  db.prepare("UPDATE notes SET user_id = ? WHERE id = ?").run(newOwnerId, noteId);
+}
+
+export function listNotesByUser(userId: number): Note[] {
+  return db
+    .prepare(
+      `SELECT notes.*, users.display_name AS author_name
+       FROM notes
+       JOIN users ON users.id = notes.user_id
+       WHERE notes.user_id = ?
+       ORDER BY notes.created_at DESC`,
+    )
+    .all(userId) as Note[];
+}
+
 export function saveRememberTokenHash(tokenHash: string, userId: number): void {
   db.prepare(
     "INSERT OR REPLACE INTO remember_tokens (token_hash, user_id) VALUES (?, ?)",

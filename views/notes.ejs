@@ -7,6 +7,10 @@
       Search notes
       <input type="search" name="q" value="<%= query %>" placeholder="Title or body text" />
     </label>
+    <label class="checkbox">
+      <input type="checkbox" name="mine" value="1" <%= typeof mine !== 'undefined' && mine ? 'checked' : '' %> />
+      Only mine
+    </label>
     <button type="submit" class="btn btn-small">Search</button>
   </form>
 
