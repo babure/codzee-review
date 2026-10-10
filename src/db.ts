@@ -187,6 +187,44 @@ export function clearRememberTokensForUser(userId: number): void {
   db.prepare("DELETE FROM remember_tokens WHERE user_id = ?").run(userId);
 }
 
+export function ensurePasswordResetTable(): void {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS password_resets (
+      token TEXT PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+  `);
+}
+
+export function savePasswordResetToken(token: string, userId: number): void {
+  ensurePasswordResetTable();
+  db.prepare("DELETE FROM password_resets WHERE user_id = ?").run(userId);
+  db.prepare(
+    "INSERT INTO password_resets (token, user_id) VALUES (?, ?)",
+  ).run(token, userId);
+}
+
+export function findUserIdByResetToken(token: string): number | undefined {
+  ensurePasswordResetTable();
+  const row = db
+    .prepare("SELECT user_id FROM password_resets WHERE token = ?")
+    .get(token) as { user_id: number } | undefined;
+  return row?.user_id;
+}
+
+export function deletePasswordResetToken(token: string): void {
+  ensurePasswordResetTable();
+  db.prepare("DELETE FROM password_resets WHERE token = ?").run(token);
+}
+
+export function updateUserPassword(userId: number, passwordHash: string): void {
+  db.prepare("UPDATE users SET password_hash = ? WHERE id = ?").run(
+    passwordHash,
+    userId,
+  );
+}
+
 export interface Profile {
   user_id: number;
   bio: string;
