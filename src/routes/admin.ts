@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { findUserById, listUsers, updateUserRole } from "../db.js";
+import { invalidateUserAuth } from "../lib/sessionAuth.js";
 import { isValidRole } from "../lib/validation.js";
 import { requireLogin } from "../middleware/auth.js";
 import { requireRole } from "../middleware/rbac.js";
@@ -70,6 +71,7 @@ router.post(
     }
 
     updateUserRole(userId, role as Role);
+    invalidateUserAuth(userId);
 
     if (req.session.user?.id === userId) {
       req.session.user.role = role as Role;
