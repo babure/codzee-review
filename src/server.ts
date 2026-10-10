@@ -14,6 +14,7 @@ import adminRoutes from "./routes/admin.js";
 import authRoutes from "./routes/auth.js";
 import dashboardRoutes from "./routes/dashboard.js";
 import notesRoutes from "./routes/notes.js";
+import passwordResetRoutes from "./routes/passwordReset.js";
 import profileRoutes from "./routes/profile.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -72,6 +73,7 @@ app.get("/", (req, res) => {
 
 app.use(verifyCsrf);
 app.use(authRoutes);
+app.use(passwordResetRoutes);
 app.use(dashboardRoutes);
 app.use(adminRoutes);
 app.use(notesRoutes);
